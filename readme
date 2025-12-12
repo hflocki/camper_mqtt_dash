@@ -9,3 +9,9 @@ Steuerung der ESP Geräte wie Truma oder MaxxFan mittels MQTT über Websocket
 Download der mqtt library: https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js
 
 Backup und restore script für Anpassungen auf USB Stick 
+
+Status Page
+![Alt-Text](images/status.png)
+
+Control Page
+![Alt-Text](images/control.png)
