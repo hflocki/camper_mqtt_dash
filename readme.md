@@ -10,12 +10,28 @@ Ein Dashboard zur Steuerung und Überwachung von Camper‑Geräten über MQTT un
 
 ## 📦 Abhängigkeiten
 MQTT‑Library wird über CDN eingebunden:
+
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js"></script>
- ```markdown
-  
-Status Page
-![Camper MQTT Dashboard status monitoring page displaying real-time sensor data and device status information from connected ESP devices and MQTT sensors](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png?raw=true)
 
-Control Page
+💾 Backup & Restore
+Ein Script ermöglicht Backup und Restore von Anpassungen auf einem USB‑Stick.
+
+📊 Screenshots
+
+![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png?raw=true)
+
 ![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/control.png?raw=true)
+
+
+🚀 Features
+Echtzeit‑Anzeige von Sensordaten
+
+Steuerung von Camper‑Geräten über MQTT
+
+Einfache Integration in OpenWrt‑Router
+
+Backup/Restore für schnelle Wiederherstellung
+
+📌 Hinweis
+Dieses Projekt ist für den Einsatz im Camper‑Umfeld gedacht und kann flexibel erweitert werden.
