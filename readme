@@ -11,7 +11,7 @@ Download der mqtt library: https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mq
 Backup und restore script für Anpassungen auf USB Stick 
 
 Status Page
-![Alt-Text](images/status.png)
+![Alt-Text](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png)
 
 Control Page
-![Alt-Text](images/control.png)
+![Alt-Text](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/control.png)
