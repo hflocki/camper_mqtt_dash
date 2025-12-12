@@ -1,6 +1,11 @@
-Camper Dashboard mit MQTT 
+Camper Dashboard mit MQTT für openwrt Router
 
-ESP Sensoren senden Daten an Broker mit MQTT
-Webseite zeigt Werte mittele websocket an 
+wie den GL-MT3000 (Beryl AX)
 
-Download from or use it : https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js
+ESP mit Sensoren senden Daten mit MQTT an mosquitto 
+Die Zentrale Webseite stellt Werte mittels websocket da
+Steuerung der ESP Geräte wie Truma oder MaxxFan mittels MQTT über Websocket
+
+Download der mqtt library: https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js
+
+Backup und restore script für Anpassungen auf USB Stick 
