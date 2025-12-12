@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP Test Switch</title>
+    
+    <script src="./mqtt.min.js"></script> 
+    
+    <script src="./config_test.js"></script>
+    
+    <link rel="stylesheet" href="./style.css"> 
+
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            /* Anpassung an Ihre Farbschemata (Beispiel: Dunkel wie in Screenshots) */
+            background-color: #333; 
+            border-radius: 8px;
+        }
+        .block {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            color: #fff;
+        }
+        .status-block {
+            background-color: #444; 
+        }
+        .control-block {
+            background-color: #555;
+            text-align: center;
+        }
+        .status-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-on { background-color: #4CAF50; color: white; } /* Grün */
+        .btn-off { background-color: #f44336; color: white; } /* Rot */
+        .mqtt-status-banner {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center; color:#333;">ESP Test Switch Steuerung</h2>
+    
+    <div class="container">
+        <div class="mqtt-status-banner" style="grid-column: span 2;" id="mqtt_status_banner">
+            MQTT Status: Verbinden...
+        </div>
+
+        <div class="block status-block">
+            <h3>LED 1 Status</h3>
+            <div id="led1_status_indicator" class="status-text">Lade...</div>
+        </div>
+
+        <div class="block control-block">
+            <h3>LED 1 Steuerung</h3>
+            <button class="btn btn-on" onclick="setLEDState(LED1_SET_TOPIC, 'ON')">AN</button>
+            <button class="btn btn-off" onclick="setLEDState(LED1_SET_TOPIC, 'OFF')">AUS</button>
+        </div>
+
+        <div class="block status-block">
+            <h3>LED 2 Status</h3>
+            <div id="led2_status_indicator" class="status-text">Lade...</div>
+        </div>
+
+        <div class="block control-block">
+            <h3>LED 2 Steuerung</h3>
+            <button class="btn btn-on" onclick="setLEDState(LED2_SET_TOPIC, 'ON')">AN</button>
+            <button class="btn btn-off" onclick="setLEDState(LED2_SET_TOPIC, 'OFF')">AUS</button>
+        </div>
+    </div>
+
+
+    <script>
+        let client;
+        const statusBanner = document.getElementById('mqtt_status_banner');
+        
+        // Funktion zum Senden eines MQTT-Kommandos
+        function setLEDState(topic, state) {
+            if (client && client.connected) {
+                // client.publish ist die korrekte Methode für mqtt.js
+                client.publish(topic, state, { qos: 0, retain: false });
+                console.log(`Gesendet: ${state} an ${topic}`);
+            } else {
+                alert("MQTT nicht verbunden. Bitte warten oder Seite neu laden.");
+            }
+        }
+
+        // Wird bei Empfang einer MQTT-Nachricht aufgerufen
+        function onMessage(topic, message) {
+            const payload = message.toString().toUpperCase();
+            
+            let indicator_id;
+            
+            if (topic === LED1_STATE_TOPIC) {
+                indicator_id = 'led1_status_indicator';
+            } else if (topic === LED2_STATE_TOPIC) {
+                indicator_id = 'led2_status_indicator';
+            } else {
+                return; // Nicht unser Topic
+            }
+            
+            const indicator = document.getElementById(indicator_id);
+            if (indicator) {
+                indicator.textContent = payload;
+                // Farbe basierend auf dem Status setzen
+                indicator.style.color = (payload === "ON" || payload === "TRUE") ? '#4CAF50' : '#f44336';
+            }
+        }
+
+        // ------------------ MQTT Verbindung ------------------
+
+        function connectMQTT() {
+            // Client ID muss für jede Instanz einzigartig sein
+            const clientId = "test_dashboard_" + Math.random().toString(16).substr(2, 8);
+            
+            // Verwendet die Variablen aus config_test.js
+            const connectUrl = `ws://${WS_HOST}:${WS_PORT}${WS_PATH}`; 
+
+            // Korrekte Verbindungsmethode für IHRE Bibliothek (mqtt.connect)
+            client = mqtt.connect(connectUrl, {
+                clientId: clientId,
+                username: MQTT_USERNAME,
+                password: MQTT_PASSWORD,
+                clean: true,
+            });
+
+            client.on('connect', function () {
+                console.log("MQTT Broker verbunden!");
+                statusBanner.textContent = 'MQTT Status: Verbunden (OK)';
+                statusBanner.style.backgroundColor = '#4CAF50';
+
+                // Abonnieren der Status-Topics
+                client.subscribe(LED1_STATE_TOPIC, { qos: 0 });
+                client.subscribe(LED2_STATE_TOPIC, { qos: 0 });
+                console.log("Topics abonniert.");
+            });
+
+            client.on('message', onMessage); // Ruft die onMessage-Funktion auf
+
+            client.on('error', function (err) {
+                console.error("Verbindung fehlgeschlagen (Client Error): ", err);
+                statusBanner.textContent = 'MQTT Status: FEHLER';
+                statusBanner.style.backgroundColor = 'darkred';
+            });
+
+            client.on('close', function () {
+                console.log("Verbindung geschlossen/verloren. Versuche Wiederverbindung...");
+                statusBanner.textContent = 'MQTT Status: Verloren';
+                statusBanner.style.backgroundColor = '#f44336';
+            });
+            
+            client.on('offline', function () {
+                console.log("Client ist offline.");
+                statusBanner.textContent = 'MQTT Status: Offline';
+                statusBanner.style.backgroundColor = '#f44336';
+            });
+        }
+
+        // Starten der Verbindung beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', connectMQTT);
+
+    </script>
+</body>
+</html>
