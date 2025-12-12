@@ -19,85 +19,163 @@
 
   <div class="container">
     
-    <div class="system-status-container" style="justify-content: flex-start; padding-left: 0;">
-      <div class="status-item" style="flex-direction: row; gap: 5px; align-items: center;">
-        <div id="mqttLed" class="status-led"></div>
-        <span style="font-size: 1em; color: #333; font-weight: 600;">MQTT:</span>
-        <span id="mqttStatusLabel" style="font-size: 1em; color: #555;">Verbinden...</span>
-      </div>
+    <div class="system-status-container">
+        <div class="mqtt-status-group" style="display: flex; align-items: center; gap: 5px; margin-right: 30px; font-size: 1em; color: #333; font-weight: 600;">
+            <div id="mqttLed" class="status-led" style="margin-top: 0;"></div>
+            <span>MQTT:</span>
+            <span id="mqttStatusLabel" style="color: #555; font-weight: normal;">Verbinden...</span>
+        </div>
+      
+        <div class="status-item">
+            <div id="heaterLed" class="status-led"></div>
+            <div class="status-label">Heizung</div>
+        </div>
+        <div class="status-item">
+            <div id="gpsLed" class="status-led"></div>
+            <div class="status-label">GPS/Lage</div>
+        </div>
+        <div class="status-item">
+            <div id="maxxFanLed" class="status-led"></div>
+            <div class="status-label">MaxxFan</div>
+        </div>
+        <div class="status-item">
+            <div id="tempLed" class="status-led"></div>
+            <div class="status-label">Temp/Licht</div>
+        </div>
+        <div class="status-item">
+            <div id="waterLed" class="status-led"></div>
+            <div class="status-label">Wasser</div>
+        </div>
+        
     </div>
 
     
-    <div class="control-card-grid">
+    <div class="data-card">
         
-        <div class="control-box">
+        <div class="data-item">
             <h3>Beleuchtung</h3>
-            <p>Main Light Status: <span id="mainLightStatus">N/A</span></p>
-            <div class="button-group">
-                <button id="btnMainLightOn" class="btn-on">Licht An</button>
-                <button id="btnMainLightOff" class="btn-off">Licht Aus</button>
-            </div>
+            <p>Hauptlicht:</p>
+            <button class="btn btn-on" id="btnMainLightOn">AN</button>
+            <button class="btn btn-off" id="btnMainLightOff">AUS</button>
         </div>
 
-        <div class="control-box">
+        <div class="data-item">
             <h3>Heizung</h3>
-            <p>Aktuelle Solltemperatur: <span id="setpointDisplay">N/A</span> °C</p>
-            <label for="tempSetpoint">Neue Solltemperatur:</label>
-            <select id="tempSetpoint">
-                <option value="15">15°C</option>
-                <option value="18">18°C</option>
-                <option value="21" selected>21°C</option>
-                <option value="24">24°C</option>
-            </select>
-            <button id="btnSetTemp" class="btn-primary">Temperatur setzen</button>
+            <p>Zieltemperatur (&deg;C):</p>
+            <input type="number" id="tempSetpoint" value="20.0" step="0.5" min="10" max="30" class="input-field">
+            <button class="btn btn-action" id="btnSetTemp">Setzen</button>
+            
+            <div class="temp-preset-buttons">
+                <button class="btn btn-preset" data-temp="17">17&deg;C</button>
+                <button class="btn btn-preset" data-temp="19">19&deg;C</button>
+                <button class="btn btn-preset" data-temp="21">21&deg;C</button>
+                <button class="btn btn-preset" data-temp="23">23&deg;C</button>
+                <button class="btn btn-preset" data-temp="26">26&deg;C</button>
+                <button class="btn btn-preset" data-temp="28">28&deg;C</button>
+            </div>
         </div>
         
-        <div class="control-box">
-            <h3>MaxxFan</h3>
-            <p>Fan: <span id="fanDisplay">N/A</span> | Lid: <span id="lidDisplay">N/A</span></p>
-            
-            <div style="margin-bottom: 15px;">
+        <div class="data-item">
+            <h3>MaxxFan Steuerung</h3>
+            <p>Auto-Modus:</p>
+            <label class="switch">
                 <input type="checkbox" id="switchAutoFan" class="switch-input">
-                <label for="switchAutoFan" class="switch-label"></label>
-                <label for="switchAutoFan" style="display: inline; margin-left: 10px; vertical-align: top;">Auto-Modus</label>
-            </div>
-
-            <div>
+                <span class="slider round"></span>
+            </label>
+            <p style="margin-top: 15px;">Dach-Ventilator:</p>
+            <label class="switch">
                 <input type="checkbox" id="switchCeilingMode" class="switch-input">
-                <label for="switchCeilingMode" class="switch-label"></label>
-                <label for="switchCeilingMode" style="display: inline; margin-left: 10px; vertical-align: top;">Ceiling Fan Mode</label>
-            </div>
+                <span class="slider round"></span>
+            </label>
         </div>
-
+        
+        <div class="data-item system-restart-box">
+            <h3>System Neustart</h3>
+            <p>Alle Komponenten:</p>
+            <button class="btn btn-restart" id="btnRestartHeater">Heizung</button>
+            <button class="btn btn-restart" id="btnRestartFan">MaxxFan</button>
+            <button class="btn btn-restart" id="btnRestartGps">GPS/Lage</button>
+            <button class="btn btn-restart" id="btnRestartTemp">Temp/Licht</button>
+            <button class="btn btn-restart" id="btnRestartWater">Wasser</button>
+        </div>
+        
     </div>
+    
   </div>
 
+
 <script>
+    // --- MQTT Logik ---
     let client;
-    let clientId = "controlClient_" + Math.random().toString(16).substr(2, 8); 
-    
-    const mqttLedElement = document.getElementById('mqttLed');
     const mqttStatusLabelElement = document.getElementById('mqttStatusLabel');
-    
+    const mqttLedElement = document.getElementById('mqttLed');
     const switchAutoFan = document.getElementById('switchAutoFan');
     const switchCeilingMode = document.getElementById('switchCeilingMode');
     
-    function sendCommand(topic, message) {
+    // Sendet einen Befehl über MQTT
+    function sendCommand(topic, payload) {
         if (client && client.connected) {
-            client.publish(topic, message, { qos: 0, retain: false });
-            console.log(`Published to ${topic}: ${message}`);
+            client.publish(topic, payload.toString(), { qos: 0, retain: false });
+            console.log(`Befehl gesendet: ${payload} an ${topic}`);
         } else {
-            console.error("Nicht verbunden: Kann Befehl nicht senden.");
+            console.warn("MQTT nicht verbunden. Befehl konnte nicht gesendet werden.");
         }
     }
 
-    // --- Verbindung herstellen ---
+    // Zeigt den Status der Status-LEDs an
+    function updateLedStatus(elementId, payload) {
+        const ledElement = document.getElementById(elementId + 'Led');
+        if (ledElement) {
+            const isOnline = payload.toUpperCase() === 'ONLINE';
+            ledElement.className = isOnline ? 'status-led status-led-online' : 'status-led status-led-offline';
+        }
+    }
+
+    // Setzt den Zustand eines Schalters
+    function setSwitchState(switchElement, payload) {
+        const isChecked = payload.toUpperCase() === 'ON' || payload.toUpperCase() === 'TRUE';
+        switchElement.checked = isChecked;
+    }
+
+    // Funktion zum Einrichten der Neustart-Buttons (OHNE CONFIRM)
+    function setupRestartButton(buttonId, topic, nodeName) {
+        document.getElementById(buttonId).onclick = function() {
+            if (client && client.connected) {
+                client.publish(topic, "", { qos: 0, retain: false }); 
+                console.log(`Neustart-Befehl gesendet an ${topic} (Gerät: ${nodeName})`);
+            } else {
+                console.warn("MQTT nicht verbunden. Kann Neustart-Befehl nicht senden.");
+                alert(`MQTT nicht verbunden. Kann Neustart-Befehl für ${nodeName} nicht senden.`);
+            }
+        };
+    }
+
+    // Verarbeitet eingehende MQTT-Nachrichten
+    function onMessage(topic, message) {
+        const payload = message.toString().toUpperCase();
+
+        switch (topic) {
+            // --- LWT Status ---
+            case HEATER_STATE_TOPIC: updateLedStatus('heater', payload); break;
+            case ESPGEOPOS_STATE_TOPIC: updateLedStatus('gps', payload); break;
+            case MAXXFAN_STATE_TOPIC: updateLedStatus('maxxFan', payload); break;
+            case ESPTEMP_STATE_TOPIC: updateLedStatus('temp', payload); break;
+            case WATERFILL_STATE_TOPIC: updateLedStatus('water', payload); break;
+            
+            // --- MaxxFan Status ---
+            case MAXXFAN_AUTO_STATE_TOPIC: setSwitchState(switchAutoFan, payload); break;
+            case MAXXFAN_CEILING_STATE_TOPIC: setSwitchState(switchCeilingMode, payload); break;
+            
+            default:
+                break;
+        }
+    }
+    
+    // Stellt die MQTT-Verbindung her und abonniert Topics
     function connectClient() {
-        const connectUrl = `ws://${WS_HOST}:${WS_PORT}`;
-        console.log(`Versuche Verbindung zu ${connectUrl}`); 
-        mqttStatusLabelElement.textContent = "Verbinden...";
-        mqttLedElement.className = "status-led";
-        
+        const clientId = "webClient_control_" + Math.random().toString(16).substr(2, 8);
+        const connectUrl = `ws://${WS_HOST}:${WS_PORT}${WS_PATH}`;
+
         client = mqtt.connect(connectUrl, {
             clientId: clientId,
             username: MQTT_USERNAME,
@@ -106,60 +184,43 @@
         });
 
         client.on('connect', function () {
-            console.log("Steuer-Client Verbunden!");
-            mqttStatusLabelElement.textContent = "OK"; // Fester Status
-            mqttLedElement.className = "status-led status-led-online"; // Grün
-            
-            // Abonnieren der Status-Topics zur Anzeige
-            client.subscribe(LIGHT_STATE_TOPIC, { qos: 0 });
-            client.subscribe(HEATER_SETPOINT_TOPIC, { qos: 0 }); 
-            client.subscribe(MAXXFAN_FAN_STATE_TOPIC, { qos: 0 });
-            client.subscribe(MAXXFAN_LID_STATE_TOPIC, { qos: 0 });
-            client.subscribe(MAXXFAN_AUTO_STATE_TOPIC, { qos: 0 }); 
-            client.subscribe(MAXXFAN_CEILING_STATE_TOPIC, { qos: 0 }); 
+            console.log("MQTT Broker verbunden!");
+            mqttStatusLabelElement.textContent = "Verbunden (OK)";
+            mqttLedElement.className = "status-led status-led-online"; 
+
+            client.subscribe([
+                HEATER_STATE_TOPIC, ESPGEOPOS_STATE_TOPIC, MAXXFAN_STATE_TOPIC, ESPTEMP_STATE_TOPIC, WATERFILL_STATE_TOPIC,
+                MAXXFAN_AUTO_STATE_TOPIC, MAXXFAN_CEILING_STATE_TOPIC
+            ], { qos: 0 });
+            console.log("Status-Topics abonniert.");
         });
 
-        client.on('message', function (topic, message) {
-            const payload = message.toString();
+        client.on('message', onMessage); 
 
-            switch (topic) {
-                case LIGHT_STATE_TOPIC: 
-                    document.getElementById('mainLightStatus').textContent = payload; 
-                    break;
-                case HEATER_SETPOINT_TOPIC: 
-                    document.getElementById('setpointDisplay').textContent = parseFloat(payload).toFixed(1); 
-                    break;
-                case MAXXFAN_FAN_STATE_TOPIC: 
-                    document.getElementById('fanDisplay').textContent = payload; 
-                    break;
-                case MAXXFAN_LID_STATE_TOPIC: 
-                    document.getElementById('lidDisplay').textContent = payload; 
-                    break;
-                case MAXXFAN_AUTO_STATE_TOPIC: 
-                    switchAutoFan.checked = (payload === 'ON'); 
-                    break;
-                case MAXXFAN_CEILING_STATE_TOPIC: 
-                    switchCeilingMode.checked = (payload === 'ON'); 
-                    break;
-            }
+        client.on('error', function (err) {
+            console.error("Verbindung fehlgeschlagen (Client Error): ", err);
+            mqttStatusLabelElement.textContent = "FEHLER"; 
+            mqttLedElement.className = "status-led status-led-offline"; 
         });
 
         client.on('close', function () {
             console.log("Verbindung geschlossen/verloren. Versuche Wiederverbindung...");
-            mqttStatusLabelElement.textContent = "Verloren"; // Roter Status
-            mqttLedElement.className = "status-led status-led-offline"; // Rot
+            mqttStatusLabelElement.textContent = "Verloren"; 
+            mqttLedElement.className = "status-led status-led-offline"; 
         });
-        
-        client.on('error', function (err) {
-            console.error("Verbindung fehlgeschlagen (Client Error): ", err);
+
+        client.on('offline', function () {
+            console.log("Client ist offline.");
+            mqttStatusLabelElement.textContent = "Offline"; 
+            mqttLedElement.className = "status-led status-led-offline"; 
         });
     }
 
-    // --- Event Listener ---
+    // Starten der Verbindung und Zuweisen der Event-Handler
     document.addEventListener('DOMContentLoaded', function() {
         connectClient();
-        
-        // 1. Licht
+
+        // 1. Licht Steuerung
         document.getElementById("btnMainLightOn").onclick = function() {
             sendCommand(LIGHT_SET_TOPIC, "ON");
         };
@@ -167,11 +228,20 @@
             sendCommand(LIGHT_SET_TOPIC, "OFF");
         };
 
-        // 2. Heizung
+        // 2. Heizung Setpoint und Presets
         document.getElementById("btnSetTemp").onclick = function() {
             const selectedTemp = document.getElementById("tempSetpoint").value;
             sendCommand(SETPOINT_SET_TOPIC, selectedTemp);
         };
+        
+        // NEU: Preset Buttons Logik
+        document.querySelectorAll('.btn-preset').forEach(button => {
+            button.onclick = function() {
+                const temp = this.getAttribute('data-temp');
+                document.getElementById("tempSetpoint").value = temp; // Optional: Setzt den Wert im Eingabefeld
+                sendCommand(SETPOINT_SET_TOPIC, temp); // Sendet den Befehl
+            };
+        });
         
         // 3. MaxxFan Schalter
         switchAutoFan.onchange = function() {
@@ -195,6 +265,13 @@
                 switchAutoFan.checked = false;
             }
         }
+
+        // 4. Restart-Buttons zuweisen (OHNE CONFIRM)
+        setupRestartButton("btnRestartHeater", RESTART_HEATER_TOPIC, "Heizung");
+        setupRestartButton("btnRestartFan", RESTART_FAN_TOPIC, "MaxxFan");
+        setupRestartButton("btnRestartGps", RESTART_GPS_TOPIC, "GPS/Lage");
+        setupRestartButton("btnRestartTemp", RESTART_TEMP_TOPIC, "Temp/Licht");
+        setupRestartButton("btnRestartWater", RESTART_WATER_TOPIC, "Wasser");
     });
 
 </script>

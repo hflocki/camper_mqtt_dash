@@ -12,14 +12,15 @@
     <link rel="stylesheet" href="./style.css"> 
 
     <style>
+        /* --- Zusätzliche Styles für die Testseite --- */
         .container {
             display: grid;
+            /* Neue Spalten-Anordnung, damit der Restart-Block passt */
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             padding: 20px;
             max-width: 800px;
             margin: 20px auto;
-            /* Anpassung an Ihre Farbschemata (Beispiel: Dunkel wie in Screenshots) */
             background-color: #333; 
             border-radius: 8px;
         }
@@ -92,6 +93,12 @@
             <button class="btn btn-on" onclick="setLEDState(LED2_SET_TOPIC, 'ON')">AN</button>
             <button class="btn btn-off" onclick="setLEDState(LED2_SET_TOPIC, 'OFF')">AUS</button>
         </div>
+        
+        <div class="block control-block" style="grid-column: span 2;">
+            <h3>System Neustart: <span id="nodeNameDisplay" style="font-weight: normal;">(Node wird geladen...)</span></h3>
+            <button class="btn btn-off" id="btnRestartTest">Gerät Neustart</button>
+        </div>
+        
     </div>
 
 
@@ -102,7 +109,6 @@
         // Funktion zum Senden eines MQTT-Kommandos
         function setLEDState(topic, state) {
             if (client && client.connected) {
-                // client.publish ist die korrekte Methode für mqtt.js
                 client.publish(topic, state, { qos: 0, retain: false });
                 console.log(`Gesendet: ${state} an ${topic}`);
             } else {
@@ -138,10 +144,9 @@
             // Client ID muss für jede Instanz einzigartig sein
             const clientId = "test_dashboard_" + Math.random().toString(16).substr(2, 8);
             
-            // Verwendet die Variablen aus config_test.js
-            const connectUrl = `ws://${WS_HOST}:${WS_PORT}${WS_PATH}`; 
+            // Broker-Infos kommen aus config_test.js
+            const connectUrl = `ws://${MQTT_BROKER_IP}:${MQTT_PORT}`; 
 
-            // Korrekte Verbindungsmethode für IHRE Bibliothek (mqtt.connect)
             client = mqtt.connect(connectUrl, {
                 clientId: clientId,
                 username: MQTT_USERNAME,
@@ -181,8 +186,25 @@
             });
         }
 
-        // Starten der Verbindung beim Laden der Seite
-        document.addEventListener('DOMContentLoaded', connectMQTT);
+        // Starten der Verbindung und Zuweisen der Event-Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            connectMQTT();
+            
+            // Setzen des Node-Namens aus der config_test.js Konstante
+            document.getElementById('nodeNameDisplay').textContent = ESPHOME_NODE_TEST;
+
+            // Restart-Button-Logik (OHNE CONFIRM-ABFRAGE)
+            document.getElementById("btnRestartTest").onclick = function() {
+                if (client && client.connected) {
+                     // Senden eines leeren Payloads, um den Button-Trigger auszulösen
+                     client.publish(RESTART_TEST_TOPIC, "", { qos: 0, retain: false }); 
+                     console.log(`Neustart-Befehl gesendet an ${RESTART_TEST_TOPIC}`);
+                     // Keine alert()-Meldung, da sie den Testablauf stören könnte
+                } else {
+                     alert("MQTT nicht verbunden. Kann Befehl nicht senden.");
+                }
+            };
+        });
 
     </script>
 </body>
