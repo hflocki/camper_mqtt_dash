@@ -14,7 +14,7 @@ MQTT‑Library wird über CDN eingebunden:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js"></script>
 
 Status Page
-![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png)
+![Camper MQTT Dashboard status monitoring page displaying real-time sensor data and device status information from connected ESP devices and MQTT sensors](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png)
 
 Control Page
 ![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/control.png)
