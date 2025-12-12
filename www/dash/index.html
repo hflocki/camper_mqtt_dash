@@ -8,6 +8,19 @@
   <link rel="stylesheet" href="./style.css"> 
   <script src="./mqtt.min.js"></script> 
   <script src="./config.js"></script> 
+  <link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+          console.log('Service Worker registriert: ', registration.scope);
+        }).catch(err => {
+          console.log('Service Worker Registrierung fehlgeschlagen: ', err);
+        });
+      });
+    }
+</script>
 </head>
 <body>
 
