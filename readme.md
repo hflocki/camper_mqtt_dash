@@ -12,9 +12,10 @@ Ein Dashboard zur Steuerung und Überwachung von Camper‑Geräten über MQTT un
 MQTT‑Library wird über CDN eingebunden:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js"></script>
-
+ ```markdown
+  
 Status Page
-![Camper MQTT Dashboard status monitoring page displaying real-time sensor data and device status information from connected ESP devices and MQTT sensors](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png)
+![Camper MQTT Dashboard status monitoring page displaying real-time sensor data and device status information from connected ESP devices and MQTT sensors](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/status.png?raw=true)
 
 Control Page
-![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/control.png)
+![screenshot](https://github.com/hflocki/camper_mqtt_dash/blob/main/images/control.png?raw=true)
