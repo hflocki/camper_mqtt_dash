@@ -1,0 +1,85 @@
+/*
+ * MQTT-Konfiguration für Camper Dashboard
+ * Speichern als: config.js
+ */
+
+// **********************************************
+// --- Allgemeine MQTT & App Einstellungen ---
+// **********************************************
+
+const WS_HOST = window.location.hostname; //IP adress local and tailscale
+const WS_PORT = 9001;              // WebSocket Port des Brokers
+const WS_PATH = "/";
+
+const MQTT_USERNAME = "xxxxx";
+const MQTT_PASSWORD = "xxxxxx";
+
+/*
+ * Die ClientID muss einzigartig sein, daher wird sie im HTML/JS-Code generiert.
+ * Dieser Pfad wird NICHT in der HTML-Datei verwendet, dient nur als Referenz.
+ * const clientId = "webClient_" + Math.random().toString(16).substr(2, 8);
+ */
+
+const APP_NAME = "Camper Dashboard";
+
+// **********************************************
+// --- ESPHome Node Namen ---
+// **********************************************
+const ESPHOME_NODE_HEATER = "smartavan-heater";
+const ESPHOME_NODE_FAN    = "maxxfan";
+const ESPHOME_NODE_GPS    = "espgeopos";
+const ESPHOME_NODE_TEMP   = "ESPTEMP";
+const ESPHOME_NODE_WATER  = "waterfill";
+
+// **********************************************
+// --- Topics für Allgemeine LEDs & System (LWT) ---
+// **********************************************
+
+// Status-Topics für die LEDs (Last Will and Testament - LWT)
+const HEATER_STATE_TOPIC    = `${ESPHOME_NODE_HEATER}/status`;
+const ESPGEOPOS_STATE_TOPIC = `${ESPHOME_NODE_GPS}/status`; 
+const MAXXFAN_STATE_TOPIC   = `${ESPHOME_NODE_FAN}/status`; 
+const ESPTEMP_STATE_TOPIC   = `${ESPHOME_NODE_TEMP}/status`; 
+const WATERFILL_STATE_TOPIC = `${ESPHOME_NODE_TEMP}/status`;
+const CP_PLUS_ALIVE_TOPIC   = `${ESPHOME_NODE_HEATER}/binary_sensor/cp_plus_alive/state`;
+
+// **********************************************
+// --- Topics für Sensoren & Anzeigen ---
+// **********************************************
+
+// --- Heizung/Licht Topics (Node: smartavan-heater) ---
+const HEATER_SETPOINT_TOPIC = `${ESPHOME_NODE_HEATER}/number/set_temp/state`; 
+const HEATER_CURRENT_TOPIC  = `${ESPHOME_NODE_HEATER}/sensor/current_temp/state`; 
+const LIGHT_STATE_TOPIC     = `${ESPHOME_NODE_HEATER}/switch/main_light/state`;
+
+// --- Umgebungssensoren Topics (Node: espgeopos) ---
+const GPS_TEMP_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_umgebungstemperatur/state`;
+const GPS_HUMIDITY_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_luftfeuchtigkeit/state`;
+
+// --- Lage/GPS Topics (Node: espgeopos) ---
+const GPS_PITCH_TOPIC = `${ESPHOME_NODE_GPS}/sensor/neigung_vorne_hinten/state`;
+const GPS_ROLL_TOPIC = `${ESPHOME_NODE_GPS}/sensor/neigung_links_rechts/state`;
+const GPS_LAT_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_latitude/state`;
+const GPS_LON_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_longitude/state`;
+const GPS_ALT_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_altitude/state`;
+const GPS_SPEED_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_speed/state`;
+const GPS_SAT_TOPIC = `${ESPHOME_NODE_GPS}/sensor/espgeopos_satellites/state`;
+
+// --- MaxxAir Fan Topics (für Statusanzeige & Steuerung) ---
+const MAXXFAN_FAN_STATE_TOPIC    = `${ESPHOME_NODE_FAN}/fan/maxxair_fan_id/state`;
+const MAXXFAN_LID_STATE_TOPIC    = `${ESPHOME_NODE_FAN}/cover/maxxair_lid/state`;
+const MAXXFAN_DIRECTION_TOPIC = `${ESPHOME_NODE_FAN}/text_sensor/maxxfan_direction_text/state`;
+const MAXXFAN_AUTO_STATE_TOPIC   = `${ESPHOME_NODE_FAN}/switch/auto_fan/state`;
+const MAXXFAN_CEILING_STATE_TOPIC   = `${ESPHOME_NODE_FAN}/switch/ceiling_fan_mode/state`;
+
+// Steuerung Topics (falls Sie diese später für control.html benötigen)
+const MAXXFAN_FAN_COMMAND_TOPIC  = `${ESPHOME_NODE_FAN}/fan/maxxair_fan_id/command`;
+const MAXXFAN_LID_COMMAND_TOPIC  = `${ESPHOME_NODE_FAN}/cover/maxxair_lid/command`;
+const MAXXFAN_AUTO_COMMAND_TOPIC = `${ESPHOME_NODE_FAN}/switch/auto_fan/command`;
+const MAXXFAN_CEILING_COMMAND_TOPIC = `${ESPHOME_NODE_FAN}/switch/ceiling_fan_mode/command`;
+
+// **********************************************
+// --- Topics für Licht & Heizung Steuerung ---
+// **********************************************
+const SETPOINT_SET_TOPIC = `${ESPHOME_NODE_HEATER}/number/set_temp/command`;
+const LIGHT_SET_TOPIC    = `${ESPHOME_NODE_HEATER}/switch/main_light/command`;

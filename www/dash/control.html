@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camper Dashboard - Steuerung</title>
+  
+  <link rel="stylesheet" href="./style.css"> 
+  <script src="./mqtt.min.js"></script>
+  <script src="./config.js"></script> 
+</head>
+<body>
+<nav class="navbar">
+    <img id="navLogo" src="./imag/felix.png" alt="Logo" class="nav-logo">
+    
+    <h2 id="appTitle">Camper Steuerung</h2> 
+    <a href="index.html" class="nav-button">Zum Status</a>
+</nav>
+
+  <div class="container">
+    
+    <div class="system-status-container" style="justify-content: flex-start; padding-left: 0;">
+      <div class="status-item" style="flex-direction: row; gap: 5px; align-items: center;">
+        <div id="mqttLed" class="status-led"></div>
+        <span style="font-size: 1em; color: #333; font-weight: 600;">MQTT:</span>
+        <span id="mqttStatusLabel" style="font-size: 1em; color: #555;">Verbinden...</span>
+      </div>
+    </div>
+
+    
+    <div class="control-card-grid">
+        
+        <div class="control-box">
+            <h3>Beleuchtung</h3>
+            <p>Main Light Status: <span id="mainLightStatus">N/A</span></p>
+            <div class="button-group">
+                <button id="btnMainLightOn" class="btn-on">Licht An</button>
+                <button id="btnMainLightOff" class="btn-off">Licht Aus</button>
+            </div>
+        </div>
+
+        <div class="control-box">
+            <h3>Heizung</h3>
+            <p>Aktuelle Solltemperatur: <span id="setpointDisplay">N/A</span> °C</p>
+            <label for="tempSetpoint">Neue Solltemperatur:</label>
+            <select id="tempSetpoint">
+                <option value="15">15°C</option>
+                <option value="18">18°C</option>
+                <option value="21" selected>21°C</option>
+                <option value="24">24°C</option>
+            </select>
+            <button id="btnSetTemp" class="btn-primary">Temperatur setzen</button>
+        </div>
+        
+        <div class="control-box">
+            <h3>MaxxFan</h3>
+            <p>Fan: <span id="fanDisplay">N/A</span> | Lid: <span id="lidDisplay">N/A</span></p>
+            
+            <div style="margin-bottom: 15px;">
+                <input type="checkbox" id="switchAutoFan" class="switch-input">
+                <label for="switchAutoFan" class="switch-label"></label>
+                <label for="switchAutoFan" style="display: inline; margin-left: 10px; vertical-align: top;">Auto-Modus</label>
+            </div>
+
+            <div>
+                <input type="checkbox" id="switchCeilingMode" class="switch-input">
+                <label for="switchCeilingMode" class="switch-label"></label>
+                <label for="switchCeilingMode" style="display: inline; margin-left: 10px; vertical-align: top;">Ceiling Fan Mode</label>
+            </div>
+        </div>
+
+    </div>
+  </div>
+
+<script>
+    let client;
+    let clientId = "controlClient_" + Math.random().toString(16).substr(2, 8); 
+    
+    const mqttLedElement = document.getElementById('mqttLed');
+    const mqttStatusLabelElement = document.getElementById('mqttStatusLabel');
+    
+    const switchAutoFan = document.getElementById('switchAutoFan');
+    const switchCeilingMode = document.getElementById('switchCeilingMode');
+    
+    function sendCommand(topic, message) {
+        if (client && client.connected) {
+            client.publish(topic, message, { qos: 0, retain: false });
+            console.log(`Published to ${topic}: ${message}`);
+        } else {
+            console.error("Nicht verbunden: Kann Befehl nicht senden.");
+        }
+    }
+
+    // --- Verbindung herstellen ---
+    function connectClient() {
+        const connectUrl = `ws://${WS_HOST}:${WS_PORT}`;
+        console.log(`Versuche Verbindung zu ${connectUrl}`); 
+        mqttStatusLabelElement.textContent = "Verbinden...";
+        mqttLedElement.className = "status-led";
+        
+        client = mqtt.connect(connectUrl, {
+            clientId: clientId,
+            username: MQTT_USERNAME,
+            password: MQTT_PASSWORD,
+            clean: true,
+        });
+
+        client.on('connect', function () {
+            console.log("Steuer-Client Verbunden!");
+            mqttStatusLabelElement.textContent = "OK"; // Fester Status
+            mqttLedElement.className = "status-led status-led-online"; // Grün
+            
+            // Abonnieren der Status-Topics zur Anzeige
+            client.subscribe(LIGHT_STATE_TOPIC, { qos: 0 });
+            client.subscribe(HEATER_SETPOINT_TOPIC, { qos: 0 }); 
+            client.subscribe(MAXXFAN_FAN_STATE_TOPIC, { qos: 0 });
+            client.subscribe(MAXXFAN_LID_STATE_TOPIC, { qos: 0 });
+            client.subscribe(MAXXFAN_AUTO_STATE_TOPIC, { qos: 0 }); 
+            client.subscribe(MAXXFAN_CEILING_STATE_TOPIC, { qos: 0 }); 
+        });
+
+        client.on('message', function (topic, message) {
+            const payload = message.toString();
+
+            switch (topic) {
+                case LIGHT_STATE_TOPIC: 
+                    document.getElementById('mainLightStatus').textContent = payload; 
+                    break;
+                case HEATER_SETPOINT_TOPIC: 
+                    document.getElementById('setpointDisplay').textContent = parseFloat(payload).toFixed(1); 
+                    break;
+                case MAXXFAN_FAN_STATE_TOPIC: 
+                    document.getElementById('fanDisplay').textContent = payload; 
+                    break;
+                case MAXXFAN_LID_STATE_TOPIC: 
+                    document.getElementById('lidDisplay').textContent = payload; 
+                    break;
+                case MAXXFAN_AUTO_STATE_TOPIC: 
+                    switchAutoFan.checked = (payload === 'ON'); 
+                    break;
+                case MAXXFAN_CEILING_STATE_TOPIC: 
+                    switchCeilingMode.checked = (payload === 'ON'); 
+                    break;
+            }
+        });
+
+        client.on('close', function () {
+            console.log("Verbindung geschlossen/verloren. Versuche Wiederverbindung...");
+            mqttStatusLabelElement.textContent = "Verloren"; // Roter Status
+            mqttLedElement.className = "status-led status-led-offline"; // Rot
+        });
+        
+        client.on('error', function (err) {
+            console.error("Verbindung fehlgeschlagen (Client Error): ", err);
+        });
+    }
+
+    // --- Event Listener ---
+    document.addEventListener('DOMContentLoaded', function() {
+        connectClient();
+        
+        // 1. Licht
+        document.getElementById("btnMainLightOn").onclick = function() {
+            sendCommand(LIGHT_SET_TOPIC, "ON");
+        };
+        document.getElementById("btnMainLightOff").onclick = function() {
+            sendCommand(LIGHT_SET_TOPIC, "OFF");
+        };
+
+        // 2. Heizung
+        document.getElementById("btnSetTemp").onclick = function() {
+            const selectedTemp = document.getElementById("tempSetpoint").value;
+            sendCommand(SETPOINT_SET_TOPIC, selectedTemp);
+        };
+        
+        // 3. MaxxFan Schalter
+        switchAutoFan.onchange = function() {
+            const state = this.checked ? "ON" : "OFF";
+            sendCommand(MAXXFAN_AUTO_COMMAND_TOPIC, state);
+            
+            // Logik: Deaktiviert Ceiling Mode wenn Auto AN
+            if (this.checked) {
+                 if (switchCeilingMode.checked) sendCommand(MAXXFAN_CEILING_COMMAND_TOPIC, "OFF");
+                 switchCeilingMode.checked = false;
+            }
+        }
+        
+        switchCeilingMode.onchange = function() {
+            const state = this.checked ? "ON" : "OFF";
+            sendCommand(MAXXFAN_CEILING_COMMAND_TOPIC, state);
+            
+            // Logik: Deaktiviert Auto Mode wenn Ceiling Mode AN
+            if (this.checked) {
+                if (switchAutoFan.checked) sendCommand(MAXXFAN_AUTO_COMMAND_TOPIC, "OFF");
+                switchAutoFan.checked = false;
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+config owrt owrt
+    option use_uci 0
+
+config mosquitto mosquitto
+
+config persistence persistence
+# Standard-MQTT-Port 1883
+config listener 'default'
+        option port '1883'
+        option bind '0.0.0.0'
+        # REMOVE: option allow_anonymous '1'
+        option password_file '/etc/mosquitto/passwd'
+
+# WebSocket-Port 9001
+config listener 'websocket'
+        option port '9001'
+        option protocol 'websockets'
+        option bind '0.0.0.0'
+        # REMOVE: option allow_anonymous '1'
+        option password_file '/etc/mosquitto/passwd'

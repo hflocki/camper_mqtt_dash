@@ -1,0 +1,211 @@
+/* Allgemeine Styles */
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    background-color: #f9fafb; /* Heller, freundlicher Hintergrund */
+}
+h1, h2 { 
+    color: #333; 
+}
+.container {
+    padding: 20px; 
+    max-width: 1200px; /* Maximale Breite für größere Bildschirme */
+    margin: 0 auto;
+}
+
+/* --- MQTT Status Box (Nicht mehr verwendet, aber zur Sicherheit behalten) --- */
+.status-box { 
+    padding: 10px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    font-weight: bold;
+    text-align: center; 
+}
+.ok { 
+    background-color: #d4edda; 
+    color: #155724; 
+    border: 1px solid #c3e6cb; 
+}
+.fail { 
+    background-color: #f8d7da; 
+    color: #721c24; 
+    border: 1px solid #f5c6cb; 
+}
+
+/* --- Daten-Layout (Index) --- */
+.data-card { 
+    background-color: transparent; 
+    padding: 0;
+    box-shadow: none;
+    margin-top: 20px; 
+    
+    display: grid; 
+    /* Responsives Grid */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 20px; 
+}
+
+/* Jeder data-item wird zur eigenständigen Karte (Block) */
+.data-item { 
+    background-color: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
+}
+
+/* --- Datenanzeige innerhalb der Blöcke --- */
+.data-item h3 { /* H3 für die Box-Titel */
+    color: #333; 
+    border-bottom: 1px solid #eee; /* Trennlinie */
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 15px; 
+}
+.data-item p { /* Zusätzliches Styling für Text */
+    margin: 5px 0;
+}
+/* Kleine Anpassung für den "Position auf Karte" Button in der Box */
+.data-item .btn-primary.small {
+    font-size: 0.9em;
+    padding: 6px 12px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+
+/* --- Steuerung Layout (Control) --- */
+
+/* Grid für Kontrollkarten */
+.control-card-grid { 
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.control-box { /* Jeder control-box ist eine Karte */
+    background-color: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+}
+.control-box h3 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+.button-group button {
+    margin-right: 10px;
+    margin-bottom: 10px; 
+}
+.btn-primary { 
+    background-color: #1e90ff; 
+    color: white; 
+    box-shadow: 0 2px 4px rgba(30, 144, 255, 0.4); 
+}
+.btn-primary:hover { 
+    background-color: #0066cc; 
+}
+
+/* --- Navigationsleiste (unverändert) --- */
+.navbar {
+    background-color: #f8f8f8; 
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+.nav-logo { height: 30px; width: auto; margin-right: 10px; border-radius: 4px; }
+.navbar h2 { margin: 0; font-size: 1.4em; color: #333; margin-right: auto; }
+.nav-button {
+    background-color: #1e90ff; 
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.nav-button:hover {
+    background-color: #0066cc;
+}
+
+
+/* --- System-Status-Container (LEDs) --- */
+.system-status-container {
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    padding: 15px 0;
+    gap: 25px; 
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 25px;
+    /* Index.html ist zentriert, control.html ist linksbündig (wird im HTML-Code überschrieben) */
+    justify-content: center;
+}
+
+.status-led {
+    width: 18px; 
+    height: 18px;
+    border-radius: 50%;
+    background-color: #ccc; /* Default Grau */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid #aaa;
+    transition: background-color 0.3s;
+}
+
+/* Farben WIEDER AKTIVIERT (Grün/Rot) */
+.status-led-online {
+    background-color: #28a745; /* Grün */
+    box-shadow: 0 0 12px rgba(40, 167, 69, 0.8); 
+}
+.status-led-offline {
+    background-color: #dc3545; /* Rot */
+    box-shadow: 0 0 12px rgba(220, 53, 69, 0.8);
+}
+.status-label {
+    font-size: 0.8em;
+    color: #555;
+    margin-top: 8px;
+    text-align: center;
+}
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Toggle Switch Styling (Unverändert) */
+.switch-input {
+    display: none;
+}
+.switch-label {
+    display: block;
+    width: 48px; 
+    height: 28px;
+    background: #ccc;
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.switch-label::after {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    transition: transform 0.3s, background 0.3s;
+}
+.switch-input:checked + .switch-label {
+    background: #28a745;
+}
+.switch-input:checked + .switch-label::after {
+    transform: translateX(20px);
+}

@@ -1,0 +1,6 @@
+Camper Dashboard mit MQTT 
+
+ESP Sensoren senden Daten an Broker mit MQTT
+Webseite zeigt Werte mittele websocket an 
+
+Download from or use it : https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.14.1/mqtt.min.js
