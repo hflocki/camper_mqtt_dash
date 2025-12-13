@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camper Dashboard - Steuerung</title>
-  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="./style.css"> 
   <script src="./mqtt.min.js"></script>
   <script src="./config.js"></script> 
@@ -66,14 +66,14 @@
     <div class="data-card">
         
         <div class="data-item">
-            <h3>Beleuchtung</h3>
+            <h3><i class="fas fa-lightbulb"></i> Beleuchtung</h3>
             <p>Hauptlicht:</p>
             <button class="btn btn-on" id="btnMainLightOn">AN</button>
             <button class="btn btn-off" id="btnMainLightOff">AUS</button>
         </div>
 
         <div class="data-item">
-            <h3>Heizung</h3>
+            <h3><i class="fas fa-fire"></i> Truma</h3>
             <p>Zieltemperatur (&deg;C):</p>
             <input type="number" id="tempSetpoint" value="20.0" step="0.5" min="10" max="30" class="input-field">
             <button class="btn btn-action" id="btnSetTemp">Setzen</button>
@@ -89,7 +89,7 @@
         </div>
         
         <div class="data-item">
-            <h3>MaxxFan Steuerung</h3>
+            <h3><i class="fas fa-fan"></i> MaxxFan</h3>
             <p>Auto-Modus:</p>
             <label class="switch">
                 <input type="checkbox" id="switchAutoFan" class="switch-input">
@@ -103,8 +103,15 @@
         </div>
         
         <div class="data-item system-restart-box">
-            <h3>System Neustart</h3>
-            <p>Alle Komponenten:</p>
+             <h3><i class="fas fa-tools"></i> System Aktionen</h3>
+            <p>Lage-Sensor Nullpunkt setzen:</p>
+            <button class="btn btn-action" id="btnCalibrateRoll">Roll (Links/Rechts)</button>
+            <button class="btn btn-action" id="btnCalibratePitch">Pitch (Vorne/Hinten)</button>
+            <p style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #ddd;">Wassertank Kalibrierung (Frischwasser):</p>
+            <button class="btn btn-action" id="btnCalibrateWaterFull">100% (Tank Voll)</button>
+            <button class="btn btn-action" id="btnCalibrateWaterEmpty">0% (Tank Leer)</button>
+
+            <p style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #ddd;">System Neustart:</p>
             <button class="btn btn-restart" id="btnRestartHeater">Heizung</button>
             <button class="btn btn-restart" id="btnRestartFan">MaxxFan</button>
             <button class="btn btn-restart" id="btnRestartGps">GPS/Lage</button>
@@ -254,6 +261,34 @@
                 document.getElementById("tempSetpoint").value = temp; // Optional: Setzt den Wert im Eingabefeld
                 sendCommand(SETPOINT_SET_TOPIC, temp); // Sendet den Befehl
             };
+
+        // Funktion zum Senden des Kalibrierungsbefehls
+        function setupCalibrateButton(buttonId, topic, sensorName) {
+        document.getElementById(buttonId).onclick = function() {
+            if (client && client.connected) {
+                // Senden eines leeren Payloads, um den Button-Trigger in ESPHome auszulösen
+                sendCommand(topic, ""); 
+                console.log(`Kalibrierungsbefehl gesendet an ${topic} (Sensor: ${sensorName})`);
+                
+                // Visuelles Feedback
+                const originalText = this.textContent;
+                this.textContent = `Kalibrierung (${sensorName}) gesendet...`;
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 3000); 
+                
+            } else {
+                console.warn(`MQTT nicht verbunden. Kann Kalibrierungsbefehl für ${sensorName} nicht senden.`);
+                alert(`MQTT nicht verbunden. Kann Kalibrierungsbefehl für ${sensorName} nicht senden.`);
+            }
+        };
+    }
+        // Wassertank Kalibrierung (ZUWEISUNGEN)
+        setupCalibrateButton("btnCalibrateWaterFull", CALIBRATE_WATER_FULL_TOPIC, "Wasser VOLL");
+        setupCalibrateButton("btnCalibrateWaterEmpty", CALIBRATE_WATER_EMPTY_TOPIC, "Wasser LEER");
+        // Lage-Sensor Kalibrierung (ZUWEISUNGEN)
+        setupCalibrateButton("btnCalibrateRoll", GPS_CALIBRATE_ROLL_TOPIC, "Roll");
+        setupCalibrateButton("btnCalibratePitch", GPS_CALIBRATE_PITCH_TOPIC, "Pitch");
         });
         
         // 3. MaxxFan Schalter

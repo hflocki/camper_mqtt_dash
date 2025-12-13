@@ -10,6 +10,16 @@
     --light-border-color: #ddd;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --light-bg-main: #1e1e1e;
+    --light-text-color: #e0e0e0;
+    --light-label-color: #66b2ff;
+    --light-border-color: #444;
+  }
+}
+
+
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     margin: 0; 
@@ -33,6 +43,9 @@ h1, h2, h3 {
 /* ========================================================= */
 
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     align-items: center;
     padding: 10px 20px;
@@ -158,7 +171,9 @@ h1, h2, h3 {
 .data-item h3 {
     margin-top: 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--light-border-color);
+    /* border-bottom: 1px solid var(--light-border-color);*/
+      border-bottom: 1px solid;
+  border-image: linear-gradient(to right, #007bff, transparent) 1;
     color: #007bff; 
     margin-bottom: 15px;
 }
@@ -167,6 +182,87 @@ h1, h2, h3 {
     font-size: 1.1em;
     color: #555;
     margin: 5px 0;
+}
+
+.data-item h3 i {
+  color: #007bff;   /* Akzentfarbe */
+  margin-right: 8px;
+  font-size: 1.2em;
+}
+
+/* Werte blau hervorheben */
+.value {
+  color: #007bff;
+  font-weight: 600;
+}
+
+/* Grid mit 4 Kacheln */
+.data-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.data-item h3 i {
+  color: #007bff;
+  margin-right: 8px;
+}
+
+.map-icon {
+  color: #007bff;             /* Blau wie das Icon */
+  text-decoration: none;      /* Kein Unterstrich */
+  font-weight: 600;           /* Optional: etwas fetter */
+}
+
+.map-icon:hover {
+  color: #0056b3;             /* Dunkleres Blau beim Hover */
+  text-decoration: underline; /* Optional: Unterstrich beim Hover */
+}
+
+/* Falls du willst, dass auch der Text „Position“ blau ist: */
+h3 {
+  color: #007bff;
+}
+
+
+/* --- Wassertank Styling --- */
+.water-container {
+    display: flex;
+    justify-content: center; /* Zentrierung, da nur ein Tank */
+    padding: 10px;
+}
+
+.water-tank {
+    text-align: center;
+    width: 90%; /* Mehr Platz für den einzigen Tank */
+}
+
+.water-bar-shell {
+    width: 60px; 
+    height: 150px; 
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    margin: 10px auto;
+    position: relative;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+.water-bar {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    transition: height 0.5s ease-out; /* Schöner Übergang beim Füllen */
+}
+
+.fresh-color {
+    background-color: #2a88d5; /* Blau für Frischwasser */
+}
+
+.value-label {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 5px;
 }
 
 /* ========================================================= */
@@ -185,6 +281,7 @@ h1, h2, h3 {
     transition: background-color 0.2s, transform 0.1s;
     min-width: 100px; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    touch-action: manipulation;
     /* Sicherstellen, dass die Buttons untereinander brechen, wenn wenig Platz ist */
     display: inline-block; 
 }

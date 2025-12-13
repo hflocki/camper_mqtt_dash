@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camper Dashboard - Status</title>
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="./style.css"> 
   <script src="./mqtt.min.js"></script> 
   <script src="./config.js"></script> 
@@ -69,25 +69,39 @@
     <div class="data-card">
         
       <div class="data-item">
-        <h3>Lage</h3>
+        <h3><i class="fas fa-compass"></i> Orientierung</h3>
         <p>Roll (Quer): <span id="rollValue">N/A</span> °</p>
         <p>Pitch (Längs): <span id="pitchValue">N/A</span> °</p>
       </div>
 
       <div class="data-item">
-        <h3>Heizung Status</h3>
-        <p>Sollwert: <span id="setpointValue">N/A</span> °C</p>
-        <p>Istwert: <span id="currentValue">N/A</span> °C</p>
+        <h3><a href="#" id="mapLink" class="map-icon" target="_blank" title="Position auf Karte">
+        <i class="fas fa-map-pin"></i> Position</a></h3>
+        <p>
+            LON: <span id="lonValue">N/A</span>   |  
+            LAT: <span id="latValue">N/A</span>
+        </p>
+        <p>
+            ALT: <span id="altValue">N/A</span> m   |  
+            Geschw.: <span id="speedValue">N/A</span> km/h
+        </p>
+        <!-- <p><a href="#" id="mapLink" target="_blank" class="control-btn btn-primary small">Position auf Karte</a></p> -->
       </div>
 
       <div class="data-item">
-        <h3>Innenraum</h3>
+        <h3><i class="fas fa-fire"></i> Heizung</h3>
+        <p>Sollwert: <span id="setpointValue">N/A</span> °C</p>
+        <p>Istwert: <span id="currentValue">N/A</span> °C</p>
+      </div>
+      
+      <div class="data-item">
+        <h3><i class="fas fa-home"></i> Innenraum</h3>
         <p>Temperatur: <span id="temperatureValue">N/A</span> °C</p>
         <p>Luftfeuchte: <span id="humidityValue">N/A</span> %</p>
       </div>
       
       <div class="data-item">
-        <h3>Lüfter MaxxFan</h3>
+        <h3><i class="fas fa-fan"></i> MaxxFan</h3>
         <p>
             Lüfter Status: <span id="fanStateValue">N/A</span>   |  
             Lid Status: <span id="lidStateValue">N/A</span>
@@ -97,21 +111,19 @@
             Auto-Modus: <span id="autoStateValue">N/A</span></p>
       </div>
 
-      <div class="data-item">
-        <h3>Position</h3>
-        <p>
-            LON: <span id="lonValue">N/A</span>   |  
-            LAT: <span id="latValue">N/A</span>
-        </p>
-        <p>
-            ALT: <span id="altValue">N/A</span> m   |  
-            Geschw.: <span id="speedValue">N/A</span> km/h
-        </p>
-        <p><a href="#" id="mapLink" target="_blank" class="control-btn btn-primary small">Position auf Karte</a></p>
-      </div>
-        
+    <div class="data-item">
+        <h3><i class="fas fa-tint"></i> Frischwassertank</h3>
+        <div class="water-container">
+            <div class="water-tank">
+                <p>Füllstand</p>
+                <div class="water-bar-shell">
+                    <div id="freshWaterBar" class="water-bar fresh-color" style="height: 0%;"></div>
+                </div>
+                <div id="freshWaterValue" class="value-label">-- %</div>
+            </div>
+            </div>
     </div>
-  </div>
+</div>
 
 <script>
     let client;
@@ -185,7 +197,7 @@
             client.subscribe(MAXXFAN_DIRECTION_TOPIC, { qos: 0 });
             client.subscribe(MAXXFAN_AUTO_STATE_TOPIC, { qos: 0 }); 
             client.subscribe(MAXXFAN_CEILING_STATE_TOPIC, { qos: 0 }); 
-
+            client.subscribe(FRESH_WATER_STATE_TOPIC, { qos: 0 });
             console.log("Alle Topics abonniert.");
         });
 
@@ -202,6 +214,22 @@
                 }
             }
             
+            if (topic === FRESH_WATER_STATE_TOPIC) {
+                    // Der Payload ist der Wert in % (z.B. "55.0")
+                    const level = parseFloat(payload).toFixed(0); 
+                    
+                    document.getElementById('freshWaterValue').textContent = `${level} %`;
+                    document.getElementById('freshWaterBar').style.height = `${level}%`;
+                    
+                    // Füge einen Warnhinweis hinzu, wenn der Tank fast leer ist
+                    const valueElement = document.getElementById('freshWaterValue');
+                    if (level < 15) {
+                        valueElement.style.color = 'red';
+                    } else {
+                        valueElement.style.color = '#333'; // Normale Farbe (oder was in style.css definiert ist)
+                    }
+                }
+
             // Aktualisiere Sensorwerte
             switch (topic) {
                 case GPS_TEMP_TOPIC: document.getElementById('temperatureValue').textContent = parseFloat(payload).toFixed(1); break; 

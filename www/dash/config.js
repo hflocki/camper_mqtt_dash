@@ -11,8 +11,8 @@ const WS_HOST = window.location.hostname; //IP adress local and tailscale
 const WS_PORT = 9001;              // WebSocket Port des Brokers
 const WS_PATH = "/";
 
-const MQTT_USERNAME = "xxxxx";
-const MQTT_PASSWORD = "xxxxxx";
+const MQTT_USERNAME = "mqttcaruser";
+const MQTT_PASSWORD = "eUZT2zR9VG4rJ3";
 
 /*
  * Die ClientID muss einzigartig sein, daher wird sie im HTML/JS-Code generiert.
@@ -28,8 +28,8 @@ const APP_NAME = "Camper Dashboard";
 const ESPHOME_NODE_HEATER = "smartavan-heater";
 const ESPHOME_NODE_FAN    = "maxxfan";
 const ESPHOME_NODE_GPS    = "espgeopos";
-const ESPHOME_NODE_TEMP   = "ESPTEMP";
-const ESPHOME_NODE_WATER  = "waterfill";
+const ESPHOME_NODE_TEMP   = "esptemp";
+const ESPHOME_NODE_WATER  = "fuellstand";
 
 // **********************************************
 // --- Topics für Allgemeine LEDs & System (LWT) ---
@@ -40,7 +40,7 @@ const HEATER_STATE_TOPIC    = `${ESPHOME_NODE_HEATER}/status`;
 const ESPGEOPOS_STATE_TOPIC = `${ESPHOME_NODE_GPS}/status`; 
 const MAXXFAN_STATE_TOPIC   = `${ESPHOME_NODE_FAN}/status`; 
 const ESPTEMP_STATE_TOPIC   = `${ESPHOME_NODE_TEMP}/status`; 
-const WATERFILL_STATE_TOPIC = `${ESPHOME_NODE_TEMP}/status`;
+const WATERFILL_STATE_TOPIC = `${ESPHOME_NODE_WATER}/status`;
 const CP_PLUS_ALIVE_TOPIC   = `${ESPHOME_NODE_HEATER}/binary_sensor/cp_plus_alive/state`;
 
 // **********************************************
@@ -92,3 +92,15 @@ const RESTART_FAN_TOPIC    = `${ESPHOME_NODE_FAN}/button/restart_switch/command`
 const RESTART_GPS_TOPIC    = `${ESPHOME_NODE_GPS}/button/restart_switch/command`;
 const RESTART_TEMP_TOPIC   = `${ESPHOME_NODE_TEMP}/button/restart_switch/command`;
 const RESTART_WATER_TOPIC  = `${ESPHOME_NODE_WATER}/button/restart_switch/command`;
+
+
+// --- WASSERTANK TOPICS ---
+const FRESH_WATER_STATE_TOPIC = `${ESPHOME_NODE_WATER}/sensor/wasser_stand_prozent/state`;
+// --- WASSER KALIBRIERUNGS TOPICS ---
+const CALIBRATE_WATER_FULL_TOPIC = `${ESPHOME_NODE_WATER}/button/wasser_voll_kalibrieren/command`;
+const CALIBRATE_WATER_EMPTY_TOPIC = `${ESPHOME_NODE_WATER}/button/wasser_leer_kalibrieren/command`;
+
+
+// (Zeroing) 
+const GPS_CALIBRATE_ROLL_TOPIC = `${ESPHOME_NODE_GPS}/button/calibrate_imu_roll/command`; 
+const GPS_CALIBRATE_PITCH_TOPIC = `${ESPHOME_NODE_GPS}/button/calibrate_imu_pitch/command`;
